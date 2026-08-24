@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Resume Screener</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <h1>Smart Resume Screener</h1>
+            <p>AI-powered resume screening system</p>
+        </header>
+        <section class="job-section">
+
+            <h2>Job Position</h2>
+
+            <div class="job-box">
+
+                <h3>Python + AI Developer</h3>
+
+                <p>
+                    We are looking for a Python and AI Developer
+                    with strong programming and backend development
+                    skills.
+                </p>
+
+                <p>
+                    <strong>Required Skills:</strong>
+                    Python, SQL, REST APIs, FastAPI, Git
+                </p>
+
+                <p>
+                    <strong>Preferred Skills:</strong>
+                    LangChain, LangGraph, Machine Learning, Docker
+                </p>
+
+            </div>
+
+        </section>
+
+        <section class="resume-section">
+
+            <h2>Submit Your Resume</h2>
+
+            <label for="resumeFile">
+                Upload Resume
+            </label>
+
+            <input
+                type="file"
+                id="resumeFile"
+                accept=".pdf,.txt"
+            >
+
+            <p class="or">OR</p>
+
+            <label for="resumeText">
+                Paste Resume Text
+            </label>
+
+            <textarea
+                id="resumeText"
+                placeholder="Paste your resume here..."
+            ></textarea>
+
+            <button
+                id="screenButton"
+                onclick="startScreening()"
+            >
+                Start Screening
+            </button>
+
+            <p id="status"></p>
+
+        </section>
+
+
+        <section
+            id="result"
+            class="result-section"
+        >
+
+            <h2>Screening Result</h2>
+
+            <div id="resultContent"></div>
+
+        </section>
+
+        <footer>
+            Smart Resume Screener
+        </footer>
+
+    </div>
+
+
+    <script>
+
+        function startScreening() {
+
+            const file =
+                document.getElementById("resumeFile").files[0];
+
+            const resumeText =
+                document.getElementById("resumeText").value.trim();
+
+            const status =
+                document.getElementById("status");
+
+            if (!file && !resumeText) {
+
+                status.innerText =
+                    "Please upload a resume or paste your resume text.";
+
+                status.className = "error";
+
+                return;
+            }
+            status.innerText =
+                "Resume submitted. Screening process will start...";
+
+            status.className = "success";
+
+            document.getElementById("result").style.display = "block";
+
+            document.getElementById("resultContent").innerHTML = `
+                <p>
+                    Resume received successfully.
+                </p>
+
+                <p>
+                    <strong>AI screening will be connected here.</strong>
+                </p>
+            `;
+        }
+
+    </script>
+
+</body>
+</html>
