@@ -369,7 +369,7 @@ You can add a specific license such as **MIT License** if you decide to open-sou
 
 Watch the project demonstration here:
 
-**Demo Video:** [Add your demo video link here]
+**Demo Video:** https://youtu.be/KPGYQh_Gffs
 
 > Replace the link above with your YouTube, Google Drive, or other publicly accessible demo video URL.
 
@@ -377,11 +377,7 @@ Watch the project demonstration here:
 
 ## 👨‍💻 Author
 
-**Your Name**
-
-GitHub: [Add your GitHub profile link]
-
-LinkedIn: [Add your LinkedIn profile link]
+**Paras Kumar Suriavanshi**
 
 ---
 
