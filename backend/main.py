@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-
+import json
+from backend.llm_screener import screen_resume
 import fitz
 
 
@@ -14,78 +15,130 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 def home():
+
     return {
         "message": "Smart Resume Screener API is running"
     }
 
-
 @app.post("/screen")
-async def screen_resume(
+async def screen_resume_api(
     file: UploadFile | None = File(None),
     resume_text: str | None = Form(None)
 ):
 
-    if resume_text and resume_text.strip():
+    try:
 
-        text = resume_text.strip()
+        text = ""
 
-        return {
-            "input_type": "text",
-            "filename": None,
-            "resume_text": text
-        }
+        # -------------------------------
+        # Pasted resume
+        # -------------------------------
 
+        if resume_text and resume_text.strip():
 
-    if file:
-
-        filename = file.filename
-
-        # Read uploaded file into Python
-        file_bytes = await file.read()
-
-        if filename.lower().endswith(".pdf"):
-
-            pdf = fitz.open(
-                stream=file_bytes,
-                filetype="pdf"
-            )
-
-            text = ""
-
-            for page in pdf:
-
-                text += page.get_text()
+            text = resume_text.strip()
 
 
-            pdf.close()
+        # -------------------------------
+        # Uploaded file
+        # -------------------------------
 
-            return {
-                "input_type": "pdf",
-                "filename": filename,
-                "resume_text": text
-            }
+        elif file:
 
-        elif filename.lower().endswith(".txt"):
+            filename = file.filename
 
-            text = file_bytes.decode(
-                "utf-8",
-                errors="ignore"
-            )
+            file_bytes = await file.read()
 
-            return {
-                "input_type": "txt",
-                "filename": filename,
-                "resume_text": text
-            }
+
+            if filename.lower().endswith(".pdf"):
+
+                pdf = fitz.open(
+                    stream=file_bytes,
+                    filetype="pdf"
+                )
+
+                for page in pdf:
+                    text += page.get_text()
+
+                pdf.close()
+
+
+            elif filename.lower().endswith(".txt"):
+
+                text = file_bytes.decode(
+                    "utf-8",
+                    errors="ignore"
+                )
+
+
+            else:
+
+                return {
+                    "error": "Only PDF and TXT files are supported."
+                }
+
 
         else:
 
             return {
-                "error": "Only PDF and TXT files are supported."
+                "error": "Please upload a resume or paste resume text."
             }
 
-    return {
-        "error": "Please upload a resume or enter resume text."
-    }
+
+        # -------------------------------
+        # Check text
+        # -------------------------------
+
+        if not text.strip():
+
+            return {
+                "error": "No resume text found."
+            }
+
+
+        print("\n==============================")
+        print("RESUME RECEIVED")
+        print("==============================")
+        print(text[:500])
+        print("==============================\n")
+
+
+        # -------------------------------
+        # Call LLM
+        # -------------------------------
+
+        print("Calling LLM...")
+
+        result = screen_resume(text)
+
+        try:
+            result_json = json.loads(result)
+        except json.JSONDecodeError:
+            result_json = {
+                "raw_result": result
+            }
+
+        print("LLM RESPONSE RECEIVED")
+
+
+        return {
+            "resume_text": text,
+            "screening_result": result
+        }
+
+
+    except Exception as e:
+
+        print("\n==============================")
+        print("ERROR")
+        print("==============================")
+        print(type(e).__name__)
+        print(str(e))
+        print("==============================\n")
+
+        return {
+            "error": f"{type(e).__name__}: {str(e)}"
+        }

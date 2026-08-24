@@ -102,45 +102,162 @@
 
     <script>
 
-        function startScreening() {
+async function startScreening() {
 
-            const file =
-                document.getElementById("resumeFile").files[0];
+    const file =
+        document.getElementById("resumeFile").files[0];
 
-            const resumeText =
-                document.getElementById("resumeText").value.trim();
+    const resumeText =
+        document.getElementById("resumeText").value.trim();
 
-            const status =
-                document.getElementById("status");
+    const status =
+        document.getElementById("status");
 
-            if (!file && !resumeText) {
+    const result =
+        document.getElementById("result");
 
-                status.innerText =
-                    "Please upload a resume or paste your resume text.";
+    const resultContent =
+        document.getElementById("resultContent");
 
-                status.className = "error";
 
-                return;
+    // ------------------------------------------
+    // Validate input
+    // ------------------------------------------
+
+    if (!file && !resumeText) {
+
+        status.innerText =
+            "Please upload a resume or paste your resume text.";
+
+        status.className = "error";
+
+        return;
+    }
+
+
+    // ------------------------------------------
+    // Create FormData
+    // ------------------------------------------
+
+    const formData = new FormData();
+
+
+    if (file) {
+
+        formData.append(
+            "file",
+            file
+        );
+
+    }
+
+
+    if (resumeText) {
+
+        formData.append(
+            "resume_text",
+            resumeText
+        );
+
+    }
+
+
+    // ------------------------------------------
+    // Show loading
+    // ------------------------------------------
+
+    status.innerText =
+        "⏳ Analyzing resume with AI...";
+
+    status.className =
+        "success";
+
+
+    try {
+
+
+        // --------------------------------------
+        // Send data to FastAPI
+        // --------------------------------------
+
+        const response = await fetch(
+            "http://127.0.0.1:8000/screen",
+            {
+                method: "POST",
+                body: formData
             }
+        );
+
+
+        const data =
+            await response.json();
+
+
+        // --------------------------------------
+        // Check backend error
+        // --------------------------------------
+
+        if (data.error) {
+
             status.innerText =
-                "Resume submitted. Screening process will start...";
+                data.error;
 
-            status.className = "success";
+            status.className =
+                "error";
 
-            document.getElementById("result").style.display = "block";
-
-            document.getElementById("resultContent").innerHTML = `
-                <p>
-                    Resume received successfully.
-                </p>
-
-                <p>
-                    <strong>AI screening will be connected here.</strong>
-                </p>
-            `;
+            return;
         }
 
-    </script>
+
+        // --------------------------------------
+        // Show success
+        // --------------------------------------
+
+        status.innerText =
+            "✅ Resume screening completed!";
+
+        status.className =
+            "success";
+
+
+        // --------------------------------------
+        // Display result
+        // --------------------------------------
+
+        result.style.display =
+            "block";
+
+
+        resultContent.innerHTML = `
+
+            <h3>AI Screening Result</h3>
+
+            <div class="result-box">
+
+                <pre>${data.screening_result}</pre>
+
+            </div>
+
+        `;
+
+    }
+
+
+    catch (error) {
+
+        console.error(error);
+
+        status.innerText =
+            "❌ Could not connect to the Python backend.";
+
+        status.className =
+            "error";
+
+    }
+
+}
+
+</script>
 
 </body>
 </html>
