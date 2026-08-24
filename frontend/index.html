@@ -7,6 +7,7 @@
     <title>Smart Resume Screener</title>
 
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 
 <body>
@@ -228,16 +229,13 @@ async function startScreening() {
             "block";
 
 
+        // Parse the markdown string into HTML
+        const formattedHtml = marked.parse(data.screening_result);
+
         resultContent.innerHTML = `
-
-            <h3>AI Screening Result</h3>
-
             <div class="result-box">
-
-                <pre>${data.screening_result}</pre>
-
+                ${formattedHtml}
             </div>
-
         `;
 
     }
